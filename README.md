@@ -73,8 +73,10 @@ function App() {
     enableJoinMeetingPage: false,
 };
 
-// Instance creation for Clan Meeting
-
+// Instance creation
+const getInstance = (instance) => {
+  setMeetingInstance(instance)
+}
 
 /* Event handling logic
  For more Events and Methods
@@ -85,14 +87,11 @@ const handleEvent = () => {
   console.log('trigger logic from here')
 }
 
-const getInstance = (instance) => {
-  setMeetingInstance(instance)
-}
-
 // Events Invoking if instance present
 if(meetingInstance) {
   meetingInstance.on('someoneJoined', handleEvent)
 }
+
   return (
     <div className="App">
      <VideoConferencing 
