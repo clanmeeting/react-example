@@ -1,1 +1,0 @@
-export { default as VideoConferencing } from './src/components/video';

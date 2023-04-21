@@ -1,117 +1,137 @@
-# react-clan-meeting
-
-React Clan meeting is a node.js package for initializing video calls using your own configurations.
-
+# Clan Meeting - React App Example
+Add features like video meeting, audio calling, screen sharing and file sharing to your React applications with the most affordable video API [Clan Meeting](https://clanmeeting.com).
+&nbsp;
 ## Installation
-
-This is a [Node.js](https://nodejs.org/en/) module available through the
-[npm registry](https://www.npmjs.com/). Installation is done using the
-[`npm install` command](https://docs.npmjs.com/getting-started/installing-npm-packages-locally):
-
+This repo uses https://www.npmjs.com/package/react-clan-meeting npm package. Execute the following in your project directory.
 ```sh
-$ npm i react-clan-meeting
+$ git clone https://github.com/clanmeeting/react-example.git
+$ cd react-example
+$ npm install
+$ npm start
 ```
+&nbsp;
 ## Usage
-create file with the name of video.js and paste the following content
+#### Create a file called clanMeeting.js and paste the following
 ```javascript
 import React, { useEffect } from "react";
 import { clanMeeting } from "react-clan-meeting";
 
+const VideoMeeting = ({
+  domain,
+  consumerId,
+  optionalProperties,
+  getInstance,
+}) => {
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = `https://${domain}/external_api.js`;
+    script.async = true;
+    script.onload = () => scriptLoaded();
+    document.body.appendChild(script);
+  }, [domain, consumerId, optionalProperties.jwt]);
 
-const VideoConferencing = ({ domain, consumerId, optionalProperties, getInstance }) => {
-    useEffect(() => {
-        const script = document.createElement("script");
-        script.src = `https://${domain}/external_api.js`;
-        script.async = true;
-        script.onload = () => scriptLoaded();
+  const scriptLoaded = () => {
+    const meeting = new clanMeeting(domain, consumerId, optionalProperties);
+    meeting.start();
+    getInstance(meeting);
+  };
 
-        document.body.appendChild(script);
-    }, [domain, consumerId, optionalProperties.jwt]);
-   
-    const scriptLoaded = () => {
-        const meeting = new clanMeeting(domain, consumerId, optionalProperties);
-        meeting.start();
-        getInstance(meeting)
-    };
-
-    return (
-        <>
-            <span
-                style={{
-                    display: "flex",
-                    justifyContent: "center",
-                }}
-            >
-                please wait....
-            </span>
-        </>
-    );
+  return (
+    <>
+      <span
+        style={{
+          display: "flex",
+          justifyContent: "center",
+        }}
+      >
+        Loading. Please wait....
+      </span>
+    </>
+  );
 };
 
-export default VideoConferencing;
-
-
+export default VideoMeeting;
 ```
-In your App.js file should look like this.
+&nbsp;
+### Modify your App.js file as follows
+All your meeting related customizations are to be included in this file. Please note the following:  
 
+- Edit the file path for clanMeeting.js with respect to App.js while importing (see the line 3)
+- Add the domain, consumerId and the test JWT that has been shared with you in the following code.
+- JWT is only needed for the hosts. If you pass a valid JWT in the optionalProperties, this user will become a host. Read more about [authentication](https://clanmeeting.com/docs/video-api/authentication/) and [host privileges](https://clanmeeting.com/docs/video-api/host-privileges/).
+- Add the properties that you need to optionalProperties. [Click here](https://clanmeeting.com/docs/video-api-customization-and-controls/properties/) to see all available properties.
+- Check Clan Meeting Video API [events](https://clanmeeting.com/docs/video-api-customization-and-controls/events) and [methods](https://clanmeeting.com/docs/video-api-customization-and-controls/methods) to control the other aspects of the meeting.
 ```javascript
-import './App.css';
+import "./App.css";
 import React, { useState } from "react";
-import VideoConferencing from './components/video';
+import VideoMeeting from "./components/clanMeeting";
 
 function App() {
-  const [meetingInstance, setMeetingInstance] = useState(null);
-  const domain = 'try.clanmeeting.com';
-  const consumerId = 'test837';
-  
-  // Add config here
+  const [meeting, setMeetingInstance] = useState(null);
+
+  // Create instance
+  const getInstance = (instance) => {
+    setMeetingInstance(instance);
+  };
+
+  // Add domain and consumerId here
+  const domain = "<domain>";
+  const consumerId = "<consumerId>";
+
+  // Add properties here
   const optionalProperties = {
-    roomName: 'unique44545',
-    displayName: 'Host',
+    roomName: "test",
+    displayName: "Host",
     // Pass jwt only for the host.
-    jwt: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InRlc3Q4MzcifQ.eyJzdWIiOiJ0ZXN0ODM3IiwiYXVkIjoiY2xhbm1lZXRpbmciLCJpc3MiOiJwcm9kdWN0aW9uIiwicm9vbSI6IioiLCJleHAiOjE2NTUzOTg4MDEsIm5iZiI6MTY1NTIyNjAwMSwiY29udGV4dCI6e30sImlhdCI6MTY1NTIyNjAwMX0.jmy0l-L4q6oqoDuLX5K8m-PKVnG8RAvLbtzUwSvw1JuzJoX8ExV9RGuMVnfpGN4NEjZaRCk20i-B9qx1Lt8WJJxgjNpR4AlfCOCbSagAesGbkwRBg3x4Orh0UTUu4jycTY5V0EKFhSnJAPR5VrkfJaMqUGKNJoroLdm6uR9b-we140uNo8rJbk39Bqmn4kD0AppVsM6SMKxB-l_P14TXq8C3qfHat4PPxwlz-7c-FufwbpKcyOSQ_Ah_YcPKQc2TWGYnMxjncjErrUS8HmLwAMHUdVkZcZ6vdx1n_AaAQJVUnA1KXXWthGJVm7UK37_m234kzllJpEREoTHm58Ss4xiDi__8D7xuF9ZJS6oiXI0jzOSgQhEyuMjhNE6u56sdrVfv7QxX1ct3RtIBr87u3e3jEXkhyxU0dz9r12GVVXY8mpCMPTSwvk7O2fTJFLEn14C-E_fd1btSMGUBAwNpSrooeAjZnkrm2NnwOYIdS0p0nPrAN2R-R12_7l48hTFz0shYdbTq_fJQFFmUW8Et-sXe2Fb9H9O2JWbpLevXnkapCUfQrjmkyDn7xxEY3dJWTj9_wpU7orCqaljbfwqfIDIVvejPrghaeyFBDysJadB4IlFJa8NDIq2gJ-xjudE6Dmo0sZ2C2fzaH6Z3xepxeRyIwrGtdIYEsjCJvldCYnM',
+    // When generating your own JWT token, please fetch the token from your backend server
+    // Visit https://clanmeeting.com/docs/video-api-token-generation/generate-jwt/
+    jwt: "<jwt_token>",
     enableJoinMeetingPage: false,
-};
+  };
 
-// Instance creation
-const getInstance = (instance) => {
-  setMeetingInstance(instance)
-}
+  // Add JavaScript events and methods inside the IF block
+  if (meeting) {
+    // Example event that triggers if a participant joins the meeting
+    // The callback listener is triggered in case this event occurs within the meeting
+    const someoneJoinedLsnr = () => {
+      console.log("Trigger custom logic of what happens if a participant joins the meeting");
+    };
 
-/* Event handling logic
- For more Events and Methods
- please check https://clanmeeting.com/docs/video-api-customization-and-controls/
-*/
-
-const handleEvent = () => {
-  console.log('trigger logic from here')
-}
-
-// Events Invoking if instance present
-if(meetingInstance) {
-  meetingInstance.on('someoneJoined', handleEvent)
-}
+    // Start listening for the someoneJoined event
+    meeting.on("someoneJoined", someoneJoinedLsnr);
+  }
 
   return (
     <div className="App">
-     <VideoConferencing 
-      domain={domain}
-      consumerId={consumerId}
-      optionalProperties={optionalProperties}
-      getInstance={(data) => getInstance(data)}
-     />
-    
+      <VideoMeeting
+        domain={domain}
+        consumerId={consumerId}
+        optionalProperties={optionalProperties}
+        getInstance={(data) => getInstance(data)}
+      />
     </div>
   );
 }
 
 export default App;
-
-
 ```
-
-Finally paste this in your index.html file
+&nbsp;
+### Finally paste the following into your index.html file in the <body> section
 ``` javascript
 <div id="my-meeting" style="position: fixed; top: 0; left: 0; bottom: 0; right: 0; width: 100%; height: 100%; border: none; margin: 0; padding: 0; overflow: hidden; z-index: 99;"></div>
 ```
+&nbsp;
+### Ensure that strict mode is disabled in your src/index.js file
+``` javascript
+// change this
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+// to below
+root.render(
+    <App />
+);
 
+```
